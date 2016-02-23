@@ -140,8 +140,8 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 			failCount = 0;
 			if (!(startMode%3 == 2)) {
 				getEchoKey(buf);
-				showRuijieMsg(buf, h->caplen);
 			}
+			showRuijieMsg(buf, h->caplen);
 			if (dhcpMode==1 || dhcpMode==2)	/* 二次认证第一次或者认证后 */
 				switchState(ID_DHCP);
 			else if (startMode%3 == 2)
@@ -156,12 +156,12 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 		else if (buf[0x0F]==0x00 && buf[0x12]==0x04) {  /* 认证失败或被踢下线 */
 			if (state==ID_WAITECHO || state==ID_ECHO) {
 				printf(_(">> 认证掉线，开始重连!\n"));
+				showRuijieMsg(buf, h->caplen);
 				switchState(ID_START);
 			}
 			else if (buf[0x1b]!=0 || startMode%3==2) {
 				printf(_(">> 认证失败!\n"));
-				if (startMode%3 != 2)
-					showRuijieMsg(buf, h->caplen);
+				showRuijieMsg(buf, h->caplen);
 				if (maxFail && ++failCount>=maxFail) {
 					printf(_(">> 连续认证失败%u次，退出认证。\n"), maxFail);
 					exit(EXIT_SUCCESS);
