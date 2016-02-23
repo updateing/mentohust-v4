@@ -16,6 +16,7 @@
 #include "mystate.h"
 #include "myfunc.h"
 #include "dlfunc.h"
+#include "util.h"
 #include <signal.h>
 #include <string.h>
 #include <stdlib.h>
@@ -62,7 +63,7 @@ int main(int argc, char **argv)
 	else
 		switchState(ID_START);	/* 开始认证 */
 	if (-1 == pcap_loop(hPcap, -1, pcap_handle, NULL)) { /* 开始捕获数据包 */
-		printf(_("!! 捕获数据包失败，请检查网络连接！\n"));
+		printf(_("[%s] !! 捕获数据包失败，请检查网络连接！\n"), get_formatted_date());
 #ifndef NO_NOTIFY
 		if (showNotify && show_notify(_("MentoHUST - 错误提示"),
 			_("捕获数据包失败，请检查网络连接！"), 1000*showNotify) < 0)
@@ -88,7 +89,7 @@ static void exit_handle(void)
 #ifndef NO_DYLOAD
 	free_libpcap();
 #endif
-	printf(_(">> 认证已退出。\n"));
+	printf(_("[%s] >> 认证已退出。\n"), get_formatted_date());
 }
 
 static void sig_handle(int sig)
@@ -98,7 +99,7 @@ static void sig_handle(int sig)
 		if (-1 == switchState(state))
 		{
 			pcap_breakloop(hPcap);
-			printf(_("!! 发送数据包失败, 请检查网络连接！\n"));
+			printf(_("[%s] !! 发送数据包失败, 请检查网络连接！\n"), get_formatted_date());
 #ifndef NO_NOTIFY
 			if (showNotify && show_notify(_("MentoHUST - 错误提示"),
 				_("发送数据包失败, 请检查网络连接！"), 1000*showNotify) < 0)
@@ -126,7 +127,7 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 		if (buf[0x0F]==0x00 && buf[0x12]==0x01 && buf[0x16]==0x01) {	/* 验证用户名 */
 			if (startMode < 3) {
 				memcpy(destMAC, buf+6, 6);
-				printf(_("** 认证MAC:\t%s\n"), formatHex(destMAC, 6));
+				printf(_("[%s] ** 认证MAC:\t%s\n"), get_formatted_date(), formatHex(destMAC, 6));
 				startMode += 3;	/* 标记为已获取 */
 			}
 			if (startMode==3 && memcmp(buf+0x17, "User name", 9)==0)	/* 塞尔 */
@@ -136,7 +137,7 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 		else if (buf[0x0F]==0x00 && buf[0x12]==0x01 && buf[0x16]==0x04)	/* 验证密码 */
 			switchState(ID_CHALLENGE);
 		else if (buf[0x0F]==0x00 && buf[0x12]==0x03) {	/* 认证成功 */
-			printf(_(">> 认证成功!\n"));
+			printf(_("[%s] >> 认证成功!\n"), get_formatted_date());
 			failCount = 0;
 			if (!(startMode%3 == 2)) {
 				getEchoKey(buf);
@@ -155,20 +156,20 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 			switchState(ID_ECHO);
 		else if (buf[0x0F]==0x00 && buf[0x12]==0x04) {  /* 认证失败或被踢下线 */
 			if (state==ID_WAITECHO || state==ID_ECHO) {
-				printf(_(">> 认证掉线！\n"));
+				printf(_("[%s] >> 认证掉线！\n"), get_formatted_date());
 				showRuijieMsg(buf, h->caplen);
 				if (restartOnLogOff) {
-					printf(_(">> 正在重新认证...\n"));
+					printf(_("[%s] >> 正在重新认证...\n"), get_formatted_date());
 					switchState(ID_START);					
 				} else {
 					exit(1);
 				}
 			}
 			else if (buf[0x1b]!=0 || startMode%3==2) {
-				printf(_(">> 认证失败!\n"));
+				printf(_("[%s] >> 认证失败!\n"), get_formatted_date());
 				showRuijieMsg(buf, h->caplen);
 				if (maxFail && ++failCount>=maxFail) {
-					printf(_(">> 连续认证失败%u次，退出认证。\n"), maxFail);
+					printf(_("[%s] >> 连续认证失败%u次，退出认证。\n"), get_formatted_date(), maxFail);
 					exit(EXIT_SUCCESS);
 				}
 				restart();
@@ -211,7 +212,7 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 			length = strlen(serverMsg);
 		if (length>0 && (serverMsg=gbk2utf(serverMsg, length))!=NULL) {
 			if (strlen(serverMsg)) {
-				printf(_("$$ 系统提示:\t%s\n"), serverMsg);
+				printf(_("[%s] $$ 系统提示:\n%s\n"), get_formatted_date(), serverMsg);
 #ifndef NO_NOTIFY
 				if (showNotify && show_notify(_("MentoHUST - 系统提示"),
 					serverMsg, 1000*showNotify) < 0)
@@ -230,7 +231,7 @@ static void showRuijieMsg(const u_char *buf, unsigned bufLen)
 		for (; *serverMsg=='\r'||*serverMsg=='\n'; serverMsg++,length--);
 		if (length>0 && (serverMsg=gbk2utf(serverMsg, length))!=NULL) {
 			if (strlen(serverMsg)) {
-				printf(_("$$ 计费提示:\t%s\n"), serverMsg);
+				printf(_("[%s] $$ 计费提示:\n%s\n"), get_formatted_date(), serverMsg);
 #ifndef NO_NOTIFY
 				if (showNotify && show_notify(_("MentoHUST - 计费提示"),
 					serverMsg, 1000*showNotify) < 0)
