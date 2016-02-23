@@ -38,6 +38,7 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #define D_DHCPMODE			0	/* 默认DHCP模式 */
 #define D_DAEMONMODE		0	/* 默认daemon模式 */
 #define D_MAXFAIL			8	/* 默认允许失败次数 */
+#define D_RESTARTONLOGOFF	1	/* 默认掉线后重连 */
 
 #define ECHOFLAGS (ECHO|ECHOE|ECHOK|ECHONL)    /* 控制台输入密码时的模式*/
 
@@ -77,6 +78,7 @@ unsigned restartWait = D_RESTARTWAIT;	/* 失败等待 */
 unsigned startMode = D_STARTMODE;	/* 组播模式 */
 unsigned dhcpMode = D_DHCPMODE;	/* DHCP模式 */
 unsigned maxFail = D_MAXFAIL;	/* 允许失败次数 */
+unsigned restartOnLogOff = D_RESTARTONLOGOFF; /* 掉线后是否重连 */
 pcap_t *hPcap = NULL;	/* Pcap句柄 */
 int lockfd = -1;	/* 锁文件描述符 */
 
@@ -409,6 +411,8 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 				*daemonMode = atoi(str+2) % 4;
 			else if (c == 'l')
 				maxFail = atoi(str+2);
+			else if (c == 'z')
+				restartOnLogOff = atoi(str+2);
 		}
 	}
 }
@@ -432,6 +436,7 @@ static void showHelp(const char *fileName)
 		"\t-e 心跳间隔(秒)[默认30]\n"
 		"\t-r 失败等待(秒)[默认15]\n"
 		"\t-l 允许失败次数[0表示无限制，默认8]\n"
+		"\t-z 认证掉线后不重连[0为不重连，1为重连，默认1]\n"
 		"\t-a 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n"
 		"\t-d DHCP方式: 0(不使用) 1(二次认证) 2(认证后) 3(认证前) [默认0]\n"
 		"\t-b 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) [默认0]\n"
@@ -510,6 +515,7 @@ static void printConfig()
 	printf(_("** 失败等待:\t%u秒\n"), restartWait);
 	if (maxFail)
 		printf(_("** 允许失败:\t%u次\n"), maxFail);
+	printf(_("** 掉线后重连:\t%s\n"), restartOnLogOff ? "是" : "否");
 	printf(_("** 组播地址:\t%s\n"), addr[startMode]);
 	printf(_("** DHCP方式:\t%s\n"), dhcp[dhcpMode]);
 #ifndef NO_NOTIFY
