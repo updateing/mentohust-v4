@@ -495,6 +495,7 @@ static void printConfig()
 {
 	char *addr[] = {_("标准"), _("锐捷"), _("赛尔")};
 	char *dhcp[] = {_("不使用"), _("二次认证"), _("认证后"), _("认证前")};
+	char **tmp; // For argument parsing
 	printf(_("** 用户名:\t%s\n"), userName);
 	/* printf("** 密码:\t%s\n", password); */
 	printf(_("** 网卡: \t%s\n"), nic);
@@ -521,7 +522,7 @@ static void printConfig()
     {
 		printf(_("** DHCP脚本:\t"));
         dhcpArguements = yash_args(dhcpScript);
-        for(char **tmp = dhcpArguements; tmp != 0 && *tmp != 0; tmp++)
+        for(tmp = dhcpArguements; tmp != 0 && *tmp != 0; tmp++)
         {
             puts(*tmp);
         }
