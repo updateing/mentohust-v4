@@ -413,7 +413,7 @@ static void readArg(char argc, char **argv, int *saveFlag, int *exitFlag, int *d
 				*daemonMode = atoi(str+2) % 4;
 			else if (c == 'l')
 				maxFail = atoi(str+2);
-			else if (c == 'z')
+			else if (c == 'x')
 				restartOnLogOff = atoi(str+2);
 		}
 	}
@@ -438,7 +438,7 @@ static void showHelp(const char *fileName)
 		"\t-e 心跳间隔(秒)[默认30]\n"
 		"\t-r 失败等待(秒)[默认15]\n"
 		"\t-l 允许失败次数[0表示无限制，默认8]\n"
-		"\t-z 认证掉线后不重连[0为不重连，1为重连，默认1]\n"
+		"\t-x 认证掉线后不重连[0为不重连，1为重连，默认1]\n"
 		"\t-a 组播地址: 0(标准) 1(锐捷) 2(赛尔) [默认0]\n"
 		"\t-d DHCP方式: 0(不使用) 1(二次认证) 2(认证后) 3(认证前) [默认0]\n"
 		"\t-b 是否后台运行: 0(否) 1(是，关闭输出) 2(是，保留输出) 3(是，输出到文件) [默认0]\n"

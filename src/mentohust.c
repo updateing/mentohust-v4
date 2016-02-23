@@ -160,7 +160,7 @@ static void pcap_handle(u_char *user, const struct pcap_pkthdr *h, const u_char 
 				showRuijieMsg(buf, h->caplen);
 				if (restartOnLogOff) {
 					printf(_("[%s] >> 正在重新认证...\n"), get_formatted_date());
-					switchState(ID_START);					
+					switchState(ID_START);
 				} else {
 					exit(1);
 				}
