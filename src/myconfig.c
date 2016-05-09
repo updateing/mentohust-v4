@@ -19,7 +19,6 @@ static const char *PACKAGE_BUGREPORT = "http://code.google.com/p/mentohust/issue
 #include "myini.h"
 #include "myfunc.h"
 #include "dlfunc.h"
-#include "yashargs.h"
 #include "util.h"
 #include <string.h>
 #include <arpa/inet.h>
@@ -65,7 +64,6 @@ char password[ACCOUNT_SIZE] = "";	/* 密码 */
 char nic[NIC_SIZE] = "";	/* 网卡名 */
 char dataFile[MAX_PATH] = "";	/* 数据文件 */
 char dhcpScript[MAX_PATH] = "";	/* DHCP脚本 */
-char **dhcpArguements;
 u_int32_t ip = 0;	/* 本机IP */
 u_int32_t mask = 0;	/* 子网掩码 */
 u_int32_t gateway = 0;	/* 网关 */
@@ -529,12 +527,7 @@ static void printConfig()
 	if (dhcpMode != 0)
     {
 		printf(_("** DHCP脚本:\t"));
-        dhcpArguements = yash_args(dhcpScript);
-        for(tmp = dhcpArguements; tmp != 0 && *tmp != 0; tmp++)
-        {
-            printf("%s ", *tmp);
-        }
-        putchar('\n');
+        printf("%s/n", dhcpScript);
     }
 }
 
