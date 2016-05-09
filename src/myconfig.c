@@ -649,7 +649,7 @@ static void checkRunning(int exitFlag, int daemonMode)
 		if (daemon(0, (daemonMode+1)%2))
 			perror(_("!! 后台运行失败"));
 		else if (daemonMode == 3) {
-			freopen(LOG_FILE, "w", stdout);
+			freopen(LOG_FILE, "a", stdout);
 			setvbuf(stdout, (char *)NULL, _IOLBF, BUFSIZ);
 			freopen(LOG_FILE, "a", stderr);
 		}
